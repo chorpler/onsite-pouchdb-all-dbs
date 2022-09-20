@@ -1,7 +1,7 @@
 /*jshint expr:true */
 'use strict';
 
-var PouchDB = require('pouchdb');
+var PouchDB = require('pouchdb-core');
 
 //
 // your plugin goes here
@@ -16,7 +16,7 @@ chai.use(require("chai-as-promised"));
 // more variables you might want
 //
 chai.should(); // var should = chai.should();
-var Promise = require('bluebird'); // var Promise = require('bluebird');
+// var Promise = require('bluebird'); // var Promise = require('bluebird');
 
 var dbs;
 if (process.browser) {
