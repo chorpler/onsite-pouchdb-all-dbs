@@ -2,10 +2,9 @@
   "name": "pouchdb-all-dbs",
   "version": "7.5.0",
   "description": "PouchDB allDbs plugin",
-  "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/nolanlawson/pouchdb-all-dbs.git"
+    "url": "git://github.com/chorpler/onsite-pouchdb-all-dbs.git"
   },
   "keywords": [
     "pouch",
@@ -18,9 +17,66 @@
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/nolanlawson/pouchdb-all-dbs/issues"
+    "url": "https://github.com/chorpler/onsite-pouchdb-all-dbs/issues"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "files": [
+    "compiled",
+    "dist",
+    "docs",
+    "lib",
+    "src",
+    "types"
+  ],
+  "main": "lib/index.js",
+  "jsnext:main": "lib/index.es.js",
+  "module": "lib/index.es.js",
+  "browser": "lib/index.browser.js",
+  "types": "types/index.d.ts",
+  "browserOrg": {
+    "crypto": false
+  },
+  "browserify": {
+    "transform": [
+      "es3ify"
+    ]
+  },
+  "brVars": {
+    "name": "PouchAllDbsPlugin",
+    "package": "pouchdb.alldbs.plugin"
   },
   "scripts": {
+    "clrscr": "node bin/clear_terminal.js",
+    "clrscroll": "node bin/itermclear.js",
+    "clean": "rimraf lib/* dist/* compiled/* types/* && mkdirp lib dist compiled types",
+    "compile": "tsc -p ./tsconfig.json",
+    "rollup-cjs": "rollup -c config/rollup.config.cjs.js && rollup -c config/rollup.config.browser.cjs.js",
+    "rollup-es": "rollup -c config/rollup.config.es.js && rollup -c config/rollup.config.browser.es.js",
+    "rollup": "npm-run-all --parallel rollup-cjs rollup-es",
+    "browserify:rollup": "browserify -t [ babelify --global --presets [ @babel/preset-env ] ] -t brfs -p bundle-collapser/plugin -s $npm_package_brVars_name lib/index.browser.js > dist/$npm_package_brVars_package.js",
+    "browserify": "npm run browserify:rollup",
+    "minify": "uglifyjs -mc < dist/$npm_package_brVars_package.js > dist/$npm_package_brVars_package.min.js",
+    "build:prod": "npm-run-all clean compile rollup browserify minify",
+    "build:dev": "npm-run-all clean compile rollup browserify",
+    "build": "npm run build:prod",
+    "prepublishOnly": "npm run build",
+    "lint": "eslint src/",
+    "lintOld": "eslint bin/ src/ test/",
+    "dev": "npm run test-local",
+    "test": "tape test/test.js | tap-spec",
+    "testOld": "npm run clrscroll && npm run build && node bin/run-test.js",
+    "test-local": "cross-env CLIENT=local npm run test",
+    "test-node": "TEST_DB=testdb nyc mocha --include test/test.js --exclude test/webrunner.js",
+    "test-browser": "./bin/test-browser.js",
+    "test-types": "tsc --noEmit -p types",
+    "jshint": "jshint -c .jshintrc lib/*.js test/test.js",
+    "release": "standard-version"
+  },
+  "scriptsOriginal": {
     "test-node": "TEST_DB=testdb nyc mocha --include test/test.js --exclude test/webrunner.js",
     "test-browser": "./bin/test-browser.js",
     "jshint": "jshint -c .jshintrc lib/*.js test/test.js",
@@ -35,13 +91,26 @@
     "argsarray": "0.0.1",
     "es3ify": "^0.2.2",
     "inherits": "~2.0.1",
+    "pouchdb-utils": "../lib/pouchdb-utils-7.5.0.tgz",
     "tiny-queue": "^0.2.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.3.3",
+    "@babel/preset-env": "^7.3.1",
+    "@babel/register": "^7.0.0",
+    "@types/node": "^12.20.55",
+    "@types/node-fetch": "^2.1.6",
+    "@types/pouchdb": "^6.4.0",
+    "@types/pouchdb-core": "^7.0.10",
+    "@types/pouchdb-find": "^6.3.7",
+    "@types/pouchdb-replication": "^6.4.4",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
     "bluebird": "^3.7.2",
-    "browserify": "^17.0.0",
+    "browserify": "^16.2.3",
     "chai": "^4.3.0",
     "chai-as-promised": "^7.1.1",
+    "eslint": "^8.23.1",
     "http-server": "~0.12.3",
     "jshint": "~2.12.0",
     "mocha": "^8.3.0",
@@ -53,18 +122,46 @@
     "selenium-standalone": "^6.23.0",
     "uglify-js": "^3.12.7",
     "watchify": "^4.0.0",
-    "wd": "^1.14.0"
-  },
-  "browser": {
-    "crypto": false
-  },
-  "browserify": {
-    "transform": [
-      "es3ify"
-    ]
-  },
-  "files": [
-    "lib",
-    "dist"
-  ]
+    "wd": "^1.14.0",
+    "babelify": "^10.0.0",
+    "brfs": "^2.0.2",
+    "bundle-collapser": "^1.3.0",
+    "cross-env": "^5.2.0",
+    "es3ify": "^0.2.2",
+    "es6-promise": "^4.2.6",
+    "istanbul": "^0.4.5",
+    "karma": "^4.0.0",
+    "karma-browserify": "^6.0.0",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-mocha": "^1.3.0",
+    "karma-mocha-reporter": "^2.2.5",
+    "karma-sauce-launcher": "^2.0.2",
+    "memdown": "6.1.1",
+    "mkdirp": "^0.5.1",
+    "npm-run-all": "^4.1.5",
+    "pouchdb-adapter-http": "file:../lib/pouchdb-adapter-http-7.5.0.tgz",
+    "pouchdb-adapter-indexeddb": "file:../lib/pouchdb-adapter-indexeddb-7.5.0.tgz",
+    "pouchdb-adapter-leveldb": "file:../lib/pouchdb-adapter-leveldb-7.5.0.tgz",
+    "pouchdb-find": "file:../lib/pouchdb-find-7.5.0.tgz",
+    "pouchdb-mapreduce": "file:../lib/pouchdb-mapreduce-7.5.0.tgz",
+    "pouchdb-replication": "file:../lib/pouchdb-replication-7.5.0.tgz",
+    "promise-polyfill": "^8.2.0",
+    "puppeteer": "^17.1.3",
+    "rimraf": "^2.6.3",
+    "rollup": "^1.2.1",
+    "rollup-plugin-buble": "^0.19.6",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-inject": "^2.2.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
+    "rollup-plugin-replace": "^2.1.0",
+    "rollup-plugin-typescript": "^1.0.0",
+    "rollup-plugin-typescript2": "^0.19.2",
+    "standard-version": "^5.0.0",
+    "tap-spec": "5.0.0",
+    "tape": "5.6.0",
+    "tslib": "^1.9.3",
+    "typescript": "^3.2.2"
+  }
 }
