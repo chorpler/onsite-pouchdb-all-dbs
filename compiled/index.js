@@ -1,160 +1,7 @@
-'use strict';
-
-var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-function unwrapExports (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
-function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
-}
-
-var argsarray = argsArray;
-
-function argsArray(fun) {
-  return function () {
-    var arguments$1 = arguments;
-
-    var len = arguments.length;
-    if (len) {
-      var args = [];
-      var i = -1;
-      while (++i < len) {
-        args[i] = arguments$1[i];
-      }
-      return fun.call(this, args);
-    } else {
-      return fun.call(this, []);
-    }
-  };
-}
-
-// Simple FIFO queue implementation to avoid having to do shift()
-// on an array, which is slow.
-
-function Queue() {
-  this.length = 0;
-}
-
-Queue.prototype.push = function (item) {
-  var node = {item: item};
-  if (this.last) {
-    this.last = this.last.next = node;
-  } else {
-    this.last = this.first = node;
-  }
-  this.length++;
-};
-
-Queue.prototype.shift = function () {
-  var node = this.first;
-  if (node) {
-    this.first = node.next;
-    if (!(--this.length)) {
-      this.last = undefined;
-    }
-    return node.item;
-  }
-};
-
-Queue.prototype.slice = function (start, end) {
-  start = typeof start === 'undefined' ? 0 : start;
-  end = typeof end === 'undefined' ? Infinity : end;
-
-  var output = [];
-
-  var i = 0;
-  for (var node = this.first; node; node = node.next) {
-    if (--end < 0) {
-      break;
-    } else if (++i > start) {
-      output.push(node.item);
-    }
-  }
-  return output;
-};
-
-var tinyQueue = Queue;
-
-var taskqueue = createCommonjsModule(function (module, exports) {
-var __read = (commonjsGlobal && commonjsGlobal.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) { return o; }
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) { ar.push(r.value); }
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) { m.call(i); }
-        }
-        finally { if (e) { throw e.error; } }
-    }
-    return ar;
-};
-var __spread = (commonjsGlobal && commonjsGlobal.__spread) || function () {
-    var arguments$1 = arguments;
-
-    for (var ar = [], i = 0; i < arguments.length; i++) { ar = ar.concat(__read(arguments$1[i])); }
-    return ar;
-};
-var __importDefault = (commonjsGlobal && commonjsGlobal.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TaskQueue = void 0;
-var argsarray_1 = __importDefault(argsarray);
-var tiny_queue_1 = __importDefault(tinyQueue);
-// see http://stackoverflow.com/a/15349865/680742
-/* istanbul ignore next */
-var nextTick = commonjsGlobal.setImmediate || process.nextTick;
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-var emptyFunc = function () { };
-var TaskQueue = /** @class */ (function () {
-    function TaskQueue() {
-        this.queue = new tiny_queue_1.default();
-        this.running = false;
-        // Constructor is here, but does nothing special
-    }
-    TaskQueue.prototype.processNext = function () {
-        var self = this;
-        if (self.running || !(self && self.queue && self.queue.length)) {
-            return;
-        }
-        self.running = true;
-        var task = self.queue.shift();
-        nextTick(function () {
-            task.fun(argsarray_1.default(function (args) {
-                var _a;
-                (_a = task.callback).apply.apply(_a, __spread([null], args));
-                self.running = false;
-                self.processNext();
-            }));
-        });
-    };
-    TaskQueue.prototype.add = function (fun, callback) {
-        var cb = callback;
-        if (callback === null || typeof callback !== 'function') {
-            cb = emptyFunc;
-        }
-        this.queue.push({ fun: fun, callback: cb });
-        this.processNext();
-    };
-    return TaskQueue;
-}());
-exports.TaskQueue = TaskQueue;
-
-});
-
-unwrapExports(taskqueue);
-var taskqueue_1 = taskqueue.TaskQueue;
-
-var compiled = createCommonjsModule(function (module, exports) {
+"use strict";
 // var utils = require('./pouch-utils');
 // var TaskQueue = require('./taskqueue');
-var __awaiter = (commonjsGlobal && commonjsGlobal.__awaiter) || function (thisArg, _arguments, P, generator) {
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -163,15 +10,15 @@ var __awaiter = (commonjsGlobal && commonjsGlobal.__awaiter) || function (thisAr
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (commonjsGlobal && commonjsGlobal.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) { throw t[1]; } return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
     return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
-        if (f) { throw new TypeError("Generator is already executing."); }
-        while (_) { try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) { return t; }
-            if (y = 0, t) { op = [op[0] & 2, t.value]; }
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -182,18 +29,18 @@ var __generator = (commonjsGlobal && commonjsGlobal.__generator) || function (th
                     if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
                     if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
                     if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) { _.ops.pop(); }
+                    if (t[2]) _.ops.pop();
                     _.trys.pop(); continue;
             }
             op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; } }
-        if (op[0] & 5) { throw op[1]; } return { value: op[0] ? op[1] : void 0, done: true };
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // import PouchDB from 'pouchdb-core';
 // import * as utils from 'pouchdb-utils';
-
+var taskqueue_1 = require("./taskqueue");
 // const allDbsPlugin = function(pouchdb:typeof PouchDB) {
 var allDbsPlugin = function (pouchdb) {
     // type Database = PouchDB.Database<any>;
@@ -236,7 +83,7 @@ var allDbsPlugin = function (pouchdb) {
     var ALL_DBS_NAME = 'pouch__all_dbs__';
     var AllDbsDatabase;
     var cache;
-    var queue = new taskqueue.TaskQueue();
+    var queue = new taskqueue_1.TaskQueue();
     function log(err) {
         /* istanbul ignore if */
         if (err) {
@@ -418,9 +265,4 @@ var plugin = {
     pluginFunction: allDbsPlugin,
 };
 exports.default = plugin;
-
-});
-
-var index = unwrapExports(compiled);
-
-module.exports = index;
+//# sourceMappingURL=index.js.map
