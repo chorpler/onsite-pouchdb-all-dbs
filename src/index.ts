@@ -42,7 +42,12 @@ const allDbsPlugin = function(pouchdb:any) {
   }
 
   const Pouch = PouchDB;
-  const adapter = Pouch && Array.isArray(Pouch.preferredAdapters) && Pouch.preferredAdapters.length > 0 ? Pouch.preferredAdapters[0] : null;
+  // eslint-disable-next-line prefer-const
+  let adapter = Pouch 
+    && Array.isArray(Pouch.preferredAdapters) 
+    && Pouch.preferredAdapters.indexOf('indexeddb') > -1 ? 'indexeddb' :
+    Pouch.preferredAdapters.indexOf('idb') > -1 ? 'idb' :
+    Pouch.preferredAdapters.length > 0 ? Pouch.preferredAdapters[0] : null;
   const defaultOpts:any = {};
   if(adapter) {
     defaultOpts.adapter = adapter;
@@ -139,11 +144,11 @@ const allDbsPlugin = function(pouchdb:any) {
   const allDbs = async ():Promise<string[]> => {
     try {
       init();
-      const opts = { startkey: PREFIX, endkey: (PREFIX + '\uffff')};
+      const allDocsOpts = { startkey: PREFIX, endkey: (PREFIX + '\uffff') };
       cache = {};
       const dbs:string[] = [];
       try {
-        const res = await AllDbsDatabase.allDocs(opts);
+        const res = await AllDbsDatabase.allDocs(allDocsOpts);
         const rows = res && res.rows && Array.isArray(res.rows) ? res.rows : [];
         rows.forEach(row => {
           dbs.push(unprefixed(row.key));
