@@ -412,8 +412,9 @@ var compiled = createCommonjsModule(function (module, exports) {
       return out;
     }
 
-    var Pouch = PouchDB;
-    var adapter = Pouch && Array.isArray(Pouch.preferredAdapters) && Pouch.preferredAdapters.length > 0 ? Pouch.preferredAdapters[0] : null;
+    var Pouch = PouchDB; // eslint-disable-next-line prefer-const
+
+    var adapter = Pouch && Array.isArray(Pouch.preferredAdapters) && Pouch.preferredAdapters.indexOf('indexeddb') > -1 ? 'indexeddb' : Pouch.preferredAdapters.indexOf('idb') > -1 ? 'idb' : Pouch.preferredAdapters.length > 0 ? Pouch.preferredAdapters[0] : null;
     var defaultOpts = {};
 
     if (adapter) {
@@ -513,14 +514,14 @@ var compiled = createCommonjsModule(function (module, exports) {
 
     var allDbs = function allDbs() {
       return __awaiter(_this, void 0, void 0, function () {
-        var opts, dbs_1, res, rows, err2_1, err_1;
+        var allDocsOpts, dbs_1, res, rows, err2_1, err_1;
         return __generator(this, function (_a) {
           switch (_a.label) {
             case 0:
               _a.trys.push([0, 5,, 6]);
 
               init();
-              opts = {
+              allDocsOpts = {
                 startkey: PREFIX,
                 endkey: PREFIX + "\uFFFF"
               };
@@ -533,7 +534,7 @@ var compiled = createCommonjsModule(function (module, exports) {
 
               return [4
               /*yield*/
-              , AllDbsDatabase.allDocs(opts)];
+              , AllDbsDatabase.allDocs(allDocsOpts)];
 
             case 2:
               res = _a.sent();
