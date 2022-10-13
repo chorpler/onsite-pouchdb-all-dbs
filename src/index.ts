@@ -11,6 +11,7 @@ const allDbsPlugin = function(pouchdb:any) {
   // console.log(`allDbsPlugin(): Called with parameters:\n`, pouchdb);
 
   const PREFIX = "db_";
+  const FSPREFIX = pouchdb && pouchdb.fsprefix ? pouchdb.fsprefix : '';
   const PouchDB = pouchdb;
 
   /**
